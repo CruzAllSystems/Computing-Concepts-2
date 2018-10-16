@@ -1,0 +1,400 @@
+//Cruz Chavez
+//Assignment 7
+
+//BigIntegerEngineImpl Class
+package biginteger;
+import javax.swing.event.*;
+import java.util.*;
+
+public class BigIntegerEngineImpl implements BigIntegerEngine
+{
+	private String sum;
+	private ArrayList<String> operands;
+	private EventListenerList eventListenerList;
+	private final ChangeEvent CHANGE_EVENT = new ChangeEvent(this);
+	
+	public BigIntegerEngineImpl()
+	{
+		this.operands = new ArrayList<String>(BigIntegerEngine.MAX_OPERANDS);
+		
+		for(int index = 0; index < BigIntegerEngine.MAX_OPERANDS; index++)
+			this.operands.add("0");
+		
+		this.add();
+		
+		this.eventListenerList = new EventListenerList();
+		
+	}//end of the default constructor
+	
+	public BigIntegerEngineImpl(int theOperands)
+	{
+		this.operands = new ArrayList<String>(theOperands);
+		
+		for(int index = 0; index < theOperands; index++)
+			this.operands.add("0");
+		
+		this.add();
+		
+		this.eventListenerList = new EventListenerList();
+		
+	}//end of the default constructor
+	
+	public String toString()
+	{
+		String temp = "";
+		for(int index = 0; index < this.operands.size(); index++)
+			temp += this.operands.get(index) + "\n";
+		return temp;
+		
+	}//end of the toString method
+	
+	//pre: none
+	//post: Generates the sum of all operands in the operands list and assigns that value to the variable sum
+	private void add()
+	{
+		String total = "0";
+		
+		for(int index = 0; index < operands.size(); index++)
+			total = this.add2(total,operands.get(index));
+		
+		this.sum = total;
+		
+	}//end of the add method
+	
+	//pre: total and theOperand are both valid Strings consisting of all digits
+	//post: Adds together total and theOperand to generate a new total to be used in later calculations 
+	private String add2(String total, String theOperand)
+	{
+		StackList<Integer> totalStack = new StackListImpl<Integer>(1000000);
+		StackList<Integer> operandStack = new StackListImpl<Integer>(1000000);
+		StackList<Integer> answerStack = new StackListImpl<Integer>(1000000);
+		String answer = "";
+		int carry = 0;
+		int x1 = 0;
+		int x2 = 0;
+		int sum = 0;
+		int digit = 0;
+		
+		for(int index = 0; index < total.length(); index++)
+			totalStack.push(Character.digit(total.charAt(index), 10));
+		
+		for(int index = 0; index < theOperand.length(); index++)
+			operandStack.push(Character.digit(theOperand.charAt(index), 10));
+		
+		while(!totalStack.isEmpty() && !operandStack.isEmpty())
+		{
+			
+			x1 = totalStack.pop();
+			x2 = operandStack.pop();
+			sum = x1 + x2 + carry;
+			carry = sum / 10;
+			digit = sum % 10;
+			answerStack.push(digit);
+			
+		}//end pathway 1
+		
+		while(!totalStack.isEmpty() && operandStack.isEmpty())
+		{
+			
+			x1 = totalStack.pop();
+			sum = x1 + carry;
+			carry = sum / 10;
+			digit = sum % 10;
+			answerStack.push(digit);
+			
+		}//end pathway 2
+		
+		while(totalStack.isEmpty() && !operandStack.isEmpty())
+		{
+			
+			x2 = operandStack.pop();
+			sum = x2 + carry;
+			carry = sum / 10;
+			digit = sum % 10;
+			answerStack.push(digit);
+			
+		}//end pathway 3
+		
+		if(carry == 1)
+			answerStack.push(carry);
+		
+		int size = answerStack.getSize();
+		
+		for(int index = 0; index < size; index++)
+			answer += answerStack.pop();
+		
+		
+		return answer;
+		
+	}//end of the add2 method
+
+	//pre: none
+	// post: all operands, from 1 to MAX_OPERANDS are set to "0"
+	public void clearOperands() 
+	{
+		for(int index = 0; index < this.operands.size(); index++)
+			this.operands.set(index,"0");
+		
+		this.add();
+		
+		this.fireChangeEvent(CHANGE_EVENT);
+		
+	}//end of the clearOperands method
+
+	//pre: 1 <= operandNumber <= MAX_OPERANDS
+	//post: returns a text string of given operandNumber,
+	//returns empty string if operandNumber is invalid
+	public String getOperand(int operandNumber) 
+	{
+		if(operandNumber < 1 || operandNumber > this.operands.size())
+			return "";
+		
+		int index = operandNumber - 1;
+		
+		return this.operands.get(index);
+		
+	}//end of the getOperand method
+
+	//pre: operandNumber>=1 and operandNumber <= MAX_OPERANDS
+	//post: operandNumber given is set to operandValue if both operandValue is a valid integer string and 
+	//      operandNumber is in range 1 to MAX_OPERANDS inclusive.
+	//      returns false if either argument is invalid and does not set anything.
+	public boolean setOperand(int operandNumber, String operandValue) 
+	{
+		if(operandNumber < 1 || operandNumber > this.operands.size() || operandValue.equals(""))
+			return false;
+		for(int index = 0; index < operandValue.length(); index++)
+			if(!Character.isDigit(operandValue.charAt(index)))
+				return false;
+		
+		int index = operandNumber -1;
+		operands.set(index, operandValue);
+		this.add();
+		this.fireChangeEvent(CHANGE_EVENT);
+		return true;
+		
+	}//end of the setOperand method
+
+	//pre: none
+	//post: returns the current sum of all operands
+	public String getSum() 
+	{
+		return this.sum;
+		
+	}//end of the getSum method
+
+	// EVENT CHANGES
+	// boiler plate standard methods for use with a model - adds change listener instance to this model's listener list
+	public void addChangeListener(ChangeListener changeListener) 
+	{
+		eventListenerList.add(ChangeListener.class, changeListener);
+		
+	}//end of the addChangeListener method
+
+	// removes change listener from this model's listener list.
+	public void removeChangeListener(ChangeListener changeListener) 
+	{
+		eventListenerList.remove(ChangeListener.class, changeListener);
+		
+	}//end of the removeChangeListener method
+
+	// raises or fires off a change event so that any listeners can hear it and thus update their situation (ie the view)
+	public void fireChangeEvent(ChangeEvent changeEvent) 
+	{
+		// Guaranteed to return a non-null array
+				Object[] listeners = eventListenerList.getListenerList();
+				// Process the listeners last to first, notifying
+				// those that are interested in this event
+				for (int i = listeners.length-2; i>=0; i-=2) 
+				{
+					if (listeners[i]==ChangeListener.class) 
+					{
+						((ChangeListener)listeners[i+1]).stateChanged(changeEvent);
+					}
+				}
+		
+	}//end of the fireChangeEvent method
+
+	
+
+}//end of the BigIntegerEngineImpl Class
+
+//BigIntegerFrame Class
+package biginteger;
+import java.awt.FlowLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import javax.swing.JFrame;
+
+
+public class BigIntegerFrame 
+{
+	// main program that runs the BigInteger Gui testing
+	// uses the Model-View-Controller paradigm
+	// the controller is BigIntegerViewImpl 
+	// the model is a BigInteger instance
+	// the view is part of the controller in the BigIntegerViewImpl class
+	
+	public static final int FRAME_WIDTH = 800;
+	public static final int FRAME_HEIGHT = 750;
+	
+	public static void main(String args[])
+	{
+		BigIntegerEngine bigInteger = new BigIntegerEngineImpl();
+		BigIntegerViewImpl controller = new BigIntegerViewImpl(bigInteger);
+		JFrame frame = new JFrame("Cruz's Big Integer Addition Tool");
+		frame.setLayout(new FlowLayout());
+		frame.addWindowListener( new WindowAdapter() {
+			public void windowClosing(WindowEvent windowEvent)
+			{
+				System.exit(0);
+			}
+		});
+		frame.getContentPane().add(controller);
+		frame.setSize(BigIntegerFrame.FRAME_WIDTH,BigIntegerFrame.FRAME_HEIGHT);
+		frame.setVisible(true);
+		
+		
+	}//end of the main method
+	
+
+}//end of the BigIntegerFrame Class
+
+//BigIntegerViewImpl Class
+package biginteger;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Scanner;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+
+public class BigIntegerViewImpl extends JPanel implements ActionListener
+{
+	public static final long serialVersionUID = 1L;
+	
+	JButton inputButton;
+	JButton clearButton;
+	JTextArea bigIntegerArea;
+	JPanel bigIntegerButtonPanel;
+	BigIntegerPanel bigIntegerPanel;
+	BigIntegerEngine bigIntegerEngine;
+	
+	ChangeListener bigIntegerEngineListener;
+	String areaText;
+	
+	public BigIntegerViewImpl(BigIntegerEngine aBigIntegerEngine)
+	{
+		super();
+		this.setPreferredSize(new Dimension(BigIntegerFrame.FRAME_WIDTH-20, BigIntegerFrame.FRAME_HEIGHT - 100));
+		this.setLayout(new BorderLayout());
+		this.bigIntegerEngine = aBigIntegerEngine;
+		areaText = "Sum: " + bigIntegerEngine.getSum();
+		
+		bigIntegerEngineListener = new ChangeListener()
+		{ 
+			public void stateChanged(ChangeEvent e){
+				update();
+			}
+
+		};
+		this.bigIntegerEngine.addChangeListener(bigIntegerEngineListener);
+		init();
+		
+		
+	}//end of the default constructor
+	
+	// initializes the view - all the widgets and listeners, sets up the view
+	private void init()
+	{
+		this.inputButton = new JButton("Set an Operand");
+		this.clearButton = new JButton("Clear");
+		
+		this.bigIntegerArea = new JTextArea("Sum: " + bigIntegerEngine.getSum(), 20, 46);
+		bigIntegerArea.setBackground(Color.ORANGE);
+		this.bigIntegerPanel = new BigIntegerPanel(bigIntegerEngine);
+		
+		bigIntegerButtonPanel = new JPanel();
+		bigIntegerButtonPanel.setLayout(new GridLayout(1,3));
+		bigIntegerButtonPanel.add(inputButton);
+		bigIntegerButtonPanel.add(clearButton);
+		
+		this.add(bigIntegerButtonPanel, BorderLayout.NORTH);
+		this.add(bigIntegerPanel, BorderLayout.WEST);
+		this.add(bigIntegerArea, BorderLayout.EAST);
+		
+		inputButton.addActionListener(this);
+		clearButton.addActionListener(this);
+		
+		
+		
+		
+	}//end of the init method
+	
+	//method called when an ChangeEvent is fired in the model
+	// updates data on the view which will reflect any changes made to the model
+	private void update() 
+	{
+		repaint();
+		bigIntegerArea.setText("Sum: " + bigIntegerEngine.getSum());
+		
+	}//end of the update method
+	
+	// HANDLES all button actions, listeners for each button
+	public void actionPerformed(ActionEvent e)
+	{
+		String actionText = "";
+		
+		if(e.getSource().equals(inputButton))
+		{  System.out.println("Set button clicked...");
+				String item = JOptionPane.showInputDialog(this, "Enter place to add the operand", "");
+				if(item==null)
+					actionText="Push cancelled...no push";
+				else
+				{
+					String index = item;
+					String item2 = JOptionPane.showInputDialog(this, "Enter operand", "");
+					
+					if(item2 == null)
+						actionText = "Push cancelled...no push";
+					else
+					{
+						bigIntegerEngine.setOperand(Integer.parseInt(item),item2);
+						actionText = "Added " + item + " to operands \n" + bigIntegerEngine.toString();
+						
+					}//end of menu 2
+				  
+				  
+				}//end of menu 1
+				
+		}//end of set aciton if
+		
+		if(e.getSource().equals(clearButton))
+		{
+			bigIntegerEngine.clearOperands();
+			
+		}//end of clear action if
+		
+	}//end of the actionPerformed method
+
+}//end of the BigIntegerViewImpl class
+
+//test output
+SUCCESS, first sets work and so does default constructor
+SUCCESS, getOperand working
+SUCCESS, clearOperands working.
+SUCCESS,  all operand tests pass.
+SUCCESS, getSum1Tests() pass.
+SUCCESS, getSum2Tests pass.
+SUCCESS, add MultipleTests pass.
