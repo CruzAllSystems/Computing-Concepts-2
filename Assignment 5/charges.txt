@@ -1,0 +1,5 @@
+CHARGE 10/1/2016  99ff99 150.0 La Cantera Golf Tournament San Antonio
+CHARGE 9/12/2016  4455jk 25.0 Heb New Braunfels, Tx
+CHARGE 10/3/2016  0088f4 85.17 Green Valley Utility
+
+

@@ -1,0 +1,6 @@
+CREDIT 9/9/2016 99uu66 -25.0 RET Macy's
+CHARGE 10/1/2016 99ff99 150.0 La Cantera Golf Tournament San Antonio
+CREDIT 8/17/2016 3rt533 -100.0 OTHER Valero
+CHARGE 9/12/2016 4455jk 25.0 Heb New Braunfels, Tx
+CREDIT 10/3/2016 93jh3l -84.0 ERR Universal Toyota
+CHARGE 10/3/2016 0088f4 85.17 Green Valley Utility

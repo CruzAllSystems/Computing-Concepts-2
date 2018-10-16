@@ -1,0 +1,60 @@
+500
+Howard
+william RogerS
+-50.0
+208
+Lopez Martinez
+Robert   JAMES
+1000.00
+200
+Jones
+Sue
+200.00
+456
+SPEITH
+JorDAN  
+400000.0
+300
+Martinez GOMEZ
+AnNa Lisa MAria
+300.00
+901
+Jones
+Billy
+901.00
+902
+Garza
+Sue
+902.00
+899
+Sosa
+William
+899.00
+877
+Villareal
+Adam
+877.00
+777
+Brown
+Adam
+777.00
+778
+Garza
+ADAM
+778.00
+776
+Sosa
+Adam
+776.00
+655
+   GarZa  
+John
+655.00
+654
+Wendell
+MArion
+654.00
+888
+LeBron
+James
+999.00

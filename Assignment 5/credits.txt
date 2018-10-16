@@ -1,0 +1,5 @@
+CREDIT  9/9/2016   99uu66  -25.00      RET     Macy's
+CREDIT  8/17/2016  3rt533  -100.00     OTHER   Valero
+CREDIT  10/3/2016  93jh3l  -84.00      ERR  Universal Toyota
+
+

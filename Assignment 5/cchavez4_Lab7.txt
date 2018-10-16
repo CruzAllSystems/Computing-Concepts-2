@@ -1,0 +1,107 @@
+//Cruz Chavez
+//Lab #7
+
+//AccountCredit Class
+package asg5;
+import java.util.*;
+import java.text.*;
+import utils.MyUtils;
+
+public class AccountCredit extends Transaction
+{
+	private String creditor;
+	private CreditCode code;
+	
+	//default constructor
+	public AccountCredit()
+	{
+		super();
+		this.setCreditor("$$$$");
+		this.setCreditCode(CreditCode.OTHER);
+		
+	}//end of the default constructor
+	
+	//parameter constructor
+	public AccountCredit(String theDate, double theAmount, String theTransactionId, String theCreditor, CreditCode theCode)
+	{
+		super(theDate,theAmount,theTransactionId);
+		this.setCreditor(theCreditor);
+		this.setCreditCode(theCode);
+		
+		
+	}//end of the parameter constructor
+	
+	//modifier methods
+	//Assigns the attributes the value indicated
+	public void setCreditor(String theCreditor){this.creditor = MyUtils.properCase(theCreditor);}
+	public void setCreditCode(CreditCode theCode){this.code = theCode;}
+	
+	//Accessor methods
+	//Returns the current value of each attribute 
+	public String getCreditor(){return creditor;}
+	public CreditCode getCreditCode(){return code;}
+	
+	//pre: none
+	//post: Returns a formated string indicating all values of the current AccountCredit instance in one line
+	public String toString()
+	{
+		String temp = super.toString();
+		
+		temp += " " + this.getCreditor() + " " + this.getCreditCode();
+		
+		return temp;
+		
+	}//end of the toString method
+	
+
+}//end of the AccountCredit class
+
+//AccountCharge Class
+package asg5;
+import java.util.*;
+import java.text.*;
+import utils.MyUtils;
+
+public class AccountCharge extends Transaction
+{
+	private String payee;
+	
+	//default constructor
+	public AccountCharge()
+	{
+		super();
+		this.setPayee("$$$$");
+		
+	}//end of the default constructor
+	
+	//parameter constructor
+	public AccountCharge(String theDate, double theAmount, String theTransactionId, String tePayee)
+	{
+		super(theDate,theAmount,theTransactionId);
+		this.setPayee(tePayee);
+		
+	}//end of the parameter constructor
+	
+	public void setPayee(String tePayee){this.payee = MyUtils.properCase(tePayee);}//assigns payee the value indicated by tePayee
+	public String getPayee(){return this.payee;}//returns the current value of payee
+	
+	//pre: none
+	//post: Returns a formated string indicating all values of the current AccountCharge instance in one line
+	public String toString()
+	{
+		
+		String temp = super.toString();
+		temp += " " + this.getPayee();
+		return temp;
+		
+	}//end of the toString method
+	
+
+}//end of the AccountCharge class
+
+//output
+Execution begins  at: 2016-10-11 16:31:16
+AccountCharge instance ch2: 8/29/2016 99ff33 -50.00 Valero Station
+AccountCredit instance ch2: 8/29/2016 99ff33 -50.00 Valero Station RET
+SUCCESS all JUnit tests pass.
+Execution ends  at: 2016-10-11 16:31:16

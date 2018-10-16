@@ -1,0 +1,642 @@
+//Cruz Chavez
+//Assignment #5
+//COSC 2325
+
+//TransactionListImpl class
+package asg5;
+import java.util.*;
+import utils.MyUtils;
+
+public class TransactionListImpl implements TransactionList 
+{
+	private int count;
+	private Node<Transaction> first;
+	
+	public TransactionListImpl()//default constructor
+	{
+		this.count = 0;
+		this.first = null;
+		
+	}//end of the default constructor
+	
+	//pre: none
+	//post: Returns the current TransactionList instance in a readable format with one Transaction instance 
+	//per line
+	public String toString()
+	{
+		String temp = "";
+		
+		if(this.getSize() == 0)
+			return "This list is empty.";
+		
+		for(Node<Transaction> node = this.first; node != null; node = node.link)
+			temp += node.data + "\n";
+			
+		return temp;
+		
+	}//end of the toString method
+	
+	//pre: none
+	//post: returns the current size of the list
+	public int getSize() {return this.count;}
+
+	//pre: none
+	// post: adds transaction if its not already in the transaction list (equals is overloaded) returns
+	//    true if added, false if already in list
+	public boolean add(Transaction transaction) 
+	{
+		if(this.contains(transaction))
+			return false;
+		
+		Node<Transaction> node = new Node<Transaction>(transaction);
+		
+		node.link = this.first;
+		this.first = node;
+		this.count++;
+		return true;
+		
+	}//end of the add method
+
+	//pre: none
+	//post: returns actual transaction from list if it equals given transaction, removes it from the list
+	//returns null otherwise
+	public Transaction remove(Transaction transaction) 
+	{
+		Node<Transaction> current = this.first;
+		Node<Transaction> previous = null;
+		
+		while(current != null)
+		{
+			if(current.data.equals(transaction))
+				break;
+			
+			previous = current;
+			current = current.link;
+				
+		}//end of the index while
+		
+		if(current == null)
+			return null;
+		
+		if(previous == null)
+			this.first = current.link;
+		else
+			previous.link = current.link;
+		
+		this.count--;
+		return current.data;
+		
+	}//end of the remove method
+
+	//pre: none
+	//post: returns true if the given transaction is in the list, false if not (equals is overloaded)
+	public boolean contains(Transaction transaction) 
+	{
+		Node<Transaction> current = this.first;
+		
+		while(current != null)
+		{
+			if(current.data.equals(transaction))
+				return true;
+			
+			current = current.link;
+			
+		}//end of the index while
+		
+		return false;
+		
+	}//end of the contains method
+
+	//pre: none
+	//post: returns transaction at given position in list,
+	//returns null if position < 0 or position >= size of the list.
+	public Transaction get(int position) 
+	{
+		if(position < 0 || position >= this.getSize())
+			return null;
+		
+		int thePos = 0;
+		Node<Transaction> current = this.first;
+		
+		while(current != null)
+		{
+			if(thePos == position)
+				return current.data;
+			
+			current = current.link;
+			thePos++;
+			
+		}//end of index while
+		
+		return null;
+		
+	}//end of the get method
+
+	//pre: none
+	//post: returns position of given transaction in list if there,
+	//returns -1 if given transaction is not in the list, uses equals
+	public int find(Transaction transaction) 
+	{
+		if(this.contains(transaction))
+		{
+			for(int index = 0; index < this.getSize(); index++)
+				if(this.get(index).equals(transaction))
+					return index;
+			
+		}
+		
+		return -1;
+		
+	}//end of the find method
+
+	//pre: none
+	//post: returns a string of all transactions in list that have given date
+	//a newline separates each transaction
+	//returns an empty string if no transactions occurred on given date
+	public String getAllTransactionsByDate(String date) 
+	{
+		GregorianCalendar aDate = MyUtils.stringToDate(date);
+		String temp = "";
+		Node<Transaction> current = this.first;
+		
+		while(current != null)
+		{
+			if(current.data.getDateCalendar().equals(aDate))
+				temp += current.data + "\n";
+			
+			current = current.link;
+			
+		}//end of the index while
+		
+		
+		return temp;
+		
+	}//end of the getAllTransactionsByDate method
+
+	//pre: none
+	//post: returns a string of all transactions in list that have given payee
+	//a newline separates each transaction
+	//returns an empty string if no transactions found for given payee
+	public String getAllTransactionsByPayee(String payee) 
+	{
+		String temp = "";
+		Node<Transaction> current = this.first;
+		
+		while(current != null)
+		{
+			if(current.data instanceof AccountCharge)
+			{
+				AccountCharge charge1 = (AccountCharge) current.data;
+				
+				if(charge1.getPayee().equals(MyUtils.properCase(payee)))
+					temp += charge1 + "\n";
+				
+			}
+				
+			
+			current = current.link;
+			
+		}//end of the index while
+		
+		return temp;
+		
+	}//end of the getAllTransactionsByPayee method
+	
+
+}//end of the TransactionListImpl Class
+
+//TransactionListUtilsImpl Class
+package asg5;
+import java.util.*;
+import java.io.*;
+import java.text.*;
+
+public class TransactionListUtilsImpl 
+{
+	//pre: infile is open and ready to read data from in program readable format as expected for Transaction data
+	//post: list is populated with data from file, adds to the current data already 
+	//in the transactionList if any
+	public static void readFromScanner(Scanner infile, TransactionList list)
+	{
+		Transaction trans = TransactionUtilsImpl.readFromScanner(infile);
+		
+		while(trans != null)
+		{
+			list.add(trans);
+			trans = TransactionUtilsImpl.readFromScanner(infile);
+			
+		}//end of the index while
+		
+	}//end of the read from scanner method
+	
+	//pre: outfile is open and ready to write to
+	//post: outfile contains current transaction list in program readable format
+	public static void writeToFile(PrintWriter outfile, TransactionList list)
+	{
+		for(int index = 0; index < list.getSize(); index++)
+			TransactionUtilsImpl.writeToFile(outfile, list.get(index));
+		
+		
+	}//end of the writeToFile method
+	
+
+}//end of the TransactionListUtilsImpl class
+
+//TransactionUtilsImpl Class
+package asg5;
+import java.io.*;
+
+import java.text.*;
+import java.util.*;
+import asg5.Transaction;
+import asg5.AccountCharge;
+import asg5.AccountCredit;
+import asg5.CreditCode;
+
+public class TransactionUtilsImpl 
+{
+	//pre: out is open and ready to write to
+	//post: out contains current transaction  in program readable format (Check or Debit)
+		public static void writeToFile(PrintWriter out, Transaction transaction)
+		{
+			if(transaction instanceof AccountCredit)
+			{
+				AccountCredit act = (AccountCredit) transaction;
+				out.println("CREDIT " + act.getDateString() + " " + act.getTransactionId() + " " + act.getAmount() + " " + act.getCreditCode() + " " + act.getCreditor());
+				
+			}
+			if(transaction instanceof AccountCharge)
+			{
+				AccountCharge act = (AccountCharge) transaction;
+				out.println("CHARGE " + act.getDateString() + " " + act.getTransactionId() + " " + act.getAmount() + " " + act.getPayee());
+				
+			}
+			
+		}//end of the writeToFile method
+		
+		//pre: in is open and ready to read data from in program readable format as expected for Transaction data
+		//post: a transaction(either an AccountCharge or an AccountCredit instance)
+	    //is populated with data from file and returned if populated properly, if not returns null.
+		public static Transaction readFromScanner(Scanner in)
+		{
+		    String acctype = "";
+		    String dte = "";
+		    String transId = "";
+		    double amnt = 0.0;
+		    String pay = "";
+		    String code = "";
+		    String credita = "";
+		    
+		    if(in.hasNext())
+		    {
+		    	acctype = in.next();
+		    	
+		    	if(!(acctype.equals("CREDIT") || acctype.equals("CHARGE")))
+		    		return null;
+		    	
+		    	if(in.hasNext())
+		    		dte = in.next();
+		    	
+		    	if(in.hasNext())
+		    		transId = in.next();
+		    	
+		    	if(in.hasNextDouble())
+		    		amnt = in.nextDouble();
+		    
+		    	
+		    	if(acctype.equals("CREDIT"))
+		    	{
+		    		code = in.next();
+		    		credita = in.nextLine();
+		    		
+		    		CreditCode coded = toCreditCode(code);
+		    		
+		    		AccountCredit value = new AccountCredit(dte,amnt,transId,credita,coded);
+		    		
+		    		return value;
+		    		
+		    	}//end of the CREDIT if
+		    	if(acctype.equals("CHARGE"))
+		    	{
+		    		pay = in.nextLine();
+		    		
+		    		AccountCharge value = new AccountCharge(dte,amnt,transId,pay);
+		    		
+		    		return value;
+		    		
+		    	}//end of the CHARGE if
+		    	
+		    	
+		    }//end of the algorithim if
+		    
+		    return null;
+		    	   
+		    	   
+		}//end of the readFromScanner method
+		
+		//pre: none
+		//post: Converts the given string value into the correct corresponding CreditCode value and returns it.
+		private static CreditCode toCreditCode(String code)
+		{
+			CreditCode temp = CreditCode.OTHER;
+			
+			if(code.equals("RET"))
+				temp = CreditCode.RET;
+			if(code.equals("ERR"))
+				temp = CreditCode.ERR;
+			
+			return temp;
+			
+		}//end of the toCreditCode method
+
+
+}//end of the TransactionUtilsImpl class
+
+//AccountCharge Class
+package asg5;
+import java.util.*;
+import java.text.*;
+import utils.MyUtils;
+
+public class AccountCharge extends Transaction
+{
+private String payee;
+	
+	//default constructor
+	public AccountCharge()
+	{
+		super();
+		this.setPayee("$$$$");
+		
+	}//end of the default constructor
+	
+	//parameter constructor
+	public AccountCharge(String theDate, double theAmount, String theTransactionId, String tePayee)
+	{
+		super(theDate,theAmount,theTransactionId);
+		this.setPayee(tePayee);
+		
+	}//end of the parameter constructor
+	
+	public void setPayee(String tePayee)
+	{
+		if(tePayee.equals(""))
+			this.payee = "$$$$";
+		else
+			this.payee = MyUtils.properCase(tePayee);
+		
+	}//assigns payee the value indicated by tePayee
+	public String getPayee(){return this.payee;}//returns the current value of payee
+	
+	// override of equals, all inheriting classes inherit this unless overridden 
+	// by inheriting class
+	public boolean equals(Object obj) 
+	{
+		if (this == obj)
+	            return true;
+		if (obj == null)
+		   return false;
+		if (getClass() != obj.getClass())
+		   return false;
+	        AccountCharge other = (AccountCharge) obj;
+		if (this.getDateCalendar() == null) 
+	        {
+			if (other.getDateCalendar() != null)
+				return false;
+		} 
+	        else if (!this.getDateCalendar().equals(other.getDateCalendar()))
+			return false;
+		if (this.getTransactionId() == null) 
+	        {
+		        if (other.getTransactionId() != null)
+				return false;
+		} 
+	        else if (!this.getTransactionId().equals(other.getTransactionId()))
+			return false;
+		if(this.getAmount()>other.getAmount() || this.getAmount() < other.getAmount())
+	        {
+		   return false;
+	        }	
+		if (!this.getPayee().equals(other.getPayee()))
+			return false;
+
+	        return true;
+	        
+	}//end of the equals method
+	
+	// expected override since equals is overridden
+	// override of hashCode, all inheriting classes inherit this unless overridden 
+	// by inheriting class
+	public int hashCode() 
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.getDateCalendar() == null) ? 0 : this.getDateCalendar().hashCode());
+		result = prime * result
+				+ ((getTransactionId() == null) ? 0 : getTransactionId().hashCode());
+		result = prime * result
+				+ ((int)getAmount() );
+		result = prime * result
+				+ ((getPayee() == null) ? 0 : getPayee().hashCode());
+		return result;
+		
+	}//end of hashcode 
+	
+	//pre: none
+	//post: Returns a formated string indicating all values of the current AccountCharge instance in one line
+	public String toString()
+	{
+		
+		String temp = super.toString();
+		temp += " " + this.getPayee();
+		return temp;
+		
+	}//end of the toString method
+
+	
+
+}//end of the AccountCharge class
+
+//AccountCredit Class
+package asg5;
+import java.util.*;
+import java.text.*;
+import utils.MyUtils;
+
+public class AccountCredit extends Transaction
+{
+	private String creditor;
+	private CreditCode code;
+	
+	//default constructor
+	public AccountCredit()
+	{
+		super();
+		this.setCreditor("$$$$");
+		this.setCreditCode(CreditCode.OTHER);
+		
+	}//end of the default constructor
+	
+	//parameter constructor
+	public AccountCredit(String theDate, double theAmount, String theTransactionId, String theCreditor, CreditCode theCode)
+	{
+		super(theDate,theAmount,theTransactionId);
+		this.setCreditor(theCreditor);
+		this.setCreditCode(theCode);
+		
+		
+	}//end of the parameter constructor
+	
+	//modifier methods
+	//Assigns the attributes the value indicated
+	public void setCreditor(String theCreditor)
+	{
+		if(theCreditor.equals(""))
+			this.creditor = "$$$$";
+		else
+			this.creditor = MyUtils.properCase(theCreditor);
+		
+	}
+	public void setCreditCode(CreditCode theCode){this.code = theCode;}
+	
+	//Accessor methods
+	//Returns the current value of each attribute 
+	public String getCreditor(){return creditor;}
+	public CreditCode getCreditCode(){return code;}
+	
+	// override of equals, all inheriting classes inherit this unless overridden 
+	// by inheriting class
+	public boolean equals(Object obj) 
+	{
+		if (this == obj)
+	            return true;
+		if (obj == null)
+		   return false;
+		if (getClass() != obj.getClass())
+		   return false;
+	        AccountCredit other = (AccountCredit) obj;
+		if (this.getDateCalendar() == null) 
+	        {
+			if (other.getDateCalendar() != null)
+				return false;
+		} 
+	        else if (!this.getDateCalendar().equals(other.getDateCalendar()))
+			return false;
+		if (this.getTransactionId() == null) 
+	        {
+		        if (other.getTransactionId() != null)
+				return false;
+		} 
+	        else if (!this.getTransactionId().equals(other.getTransactionId()))
+			return false;
+		if(this.getAmount()>other.getAmount() || this.getAmount() < other.getAmount())
+	        {
+		   return false;
+	        }	
+		
+		if (this.getCreditCode() == null) 
+        {
+		if (other.getCreditCode() != null)
+			return false;
+	} 
+        else if (!this.getCreditCode().equals(other.getCreditCode()))
+		return false;
+		
+		if (!this.getCreditor().equals(other.getCreditor()))
+			return false;
+		
+
+	        return true;
+	        
+	}//end of equals method
+	
+	// expected override since equals is overridden
+	// override of hashCode, all inheriting classes inherit this unless overridden 
+	// by inheriting class
+	public int hashCode() 
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.getDateCalendar() == null) ? 0 : this.getDateCalendar().hashCode());
+		result = prime * result
+				+ ((getTransactionId() == null) ? 0 : getTransactionId().hashCode());
+		result = prime * result
+				+ ((int)getAmount() );
+		result = prime * result
+				+ ((getCreditor() == null) ? 0 : getCreditor().hashCode());
+		result = prime * result
+				+ ((getCreditCode() == null) ? 0 : getCreditCode().hashCode());
+		
+		return result;
+		
+	}//end of hashcode 
+	
+	//pre: none
+	//post: Returns a formated string indicating all values of the current AccountCredit instance in one line
+	public String toString()
+	{
+		String temp = super.toString();
+		
+		temp += " " + this.getCreditor() + " " + this.getCreditCode();
+		
+		return temp;
+		
+	}//end of the toString method
+	
+
+}//end of the AccountCredit class
+
+//output
+Execution begins  at: 2016-10-28 14:17:44
+AccountCharge instance ch2: 8/29/2016 99ff33 -50.00 Valero Station
+AccountCredit instance ch2: 8/29/2016 99ff33 -50.00 Valero Station RET
+Now testing readFromScanner for AccountCharge
+just read ch1: 10/1/2016 99ff99 150.00 La Cantera Golf Tournament San Antonio
+just read ch2: 9/12/2016 4455jk 25.00 Heb New Braunfels, Tx
+just read ch3: 10/3/2016 0088f4 85.17 Green Valley Utility
+just read ch1: 10/1/2016 99ff99 150.00 La Cantera Golf Tournament San Antonio
+just read ch2: 9/12/2016 4455jk 25.00 Heb New Braunfels, Tx
+just read ch3: 10/3/2016 0088f4 85.17 Green Valley Utility
+just read cr1: 9/9/2016 99uu66 -25.00 Macy's RET
+just read cr2: 8/17/2016 3rt533 -100.00 Valero OTHER
+just read cr3: 10/3/2016 93jh3l -84.00 Universal Toyota ERR
+final list:accountchargeOut.txt
+10/3/2016 0088f4 85.17 Green Valley Utility
+10/3/2016 93jh3l -84.00 Universal Toyota ERR
+9/12/2016 4455jk 25.00 Heb New Braunfels, Tx
+8/17/2016 3rt533 -100.00 Valero OTHER
+10/1/2016 99ff99 150.00 La Cantera Golf Tournament San Antonio
+9/9/2016 99uu66 -25.00 Macy's RET
+
+Current List, should have 2 Transactions: 
+8/29/2016 99ff33 -50.00 Valero Station RET
+8/29/2016 99ff33 -50.00 Valero Station
+
+Current List, should have 5 Transactions: 
+9/12/2016 ihhg34 176.33 Heb At Oltorf
+10/11/2016 pwr432 -20.00 Thundercloud Subs On Riverside ERR
+9/2/2016 iit334 128.33 Heb At Oltorf
+8/29/2016 99ff33 -50.00 Valero Station RET
+8/29/2016 99ff33 -50.00 Valero Station
+
+Current List of 2 Transactions:
+9/12/2016 ihhg34 176.33 Heb At Oltorf
+10/11/2016 pwr432 -20.00 Thundercloud Subs On Riverside ERR
+
+Current List, should have 2 Transactions: 
+8/29/2016 99ff33 -50.00 Valero Station RET
+8/29/2016 99ff33 -50.00 Valero Station
+
+Current List, should have 5 Transactions: 
+9/12/2016 ihhg34 176.33 Heb At Oltorf
+10/11/2016 pwr432 -20.00 Thundercloud Subs On Riverside ERR
+9/2/2016 iit334 128.33 Heb At Oltorf
+8/29/2016 99ff33 -50.00 Valero Station RET
+8/29/2016 99ff33 -50.00 Valero Station
+
+Current List of 2 Transactions:
+9/12/2016 ihhg34 176.33 Heb At Oltorf
+10/11/2016 pwr432 -20.00 Thundercloud Subs On Riverside ERR
+
+SUCCESS all JUnit tests pass.
+Execution ends  at: 2016-10-28 14:17:44
